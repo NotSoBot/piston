@@ -151,9 +151,23 @@ class Job {
             });
 
             if (eventBus === null) {
-                proc.stdin.write(this.stdin);
-                proc.stdin.end();
-                proc.stdin.destroy();
+                proc.stdin.on('error', () => {});
+                /*
+                for (let i = 0; i < this.stdin.length; i += 100000) {
+                    const data = this.stdin.slice(i, i + 100000);
+                    if (data) {
+                        proc.stdin.write(data);
+                    }
+                }
+                */
+                //proc.stdin.write();
+                proc.stdin.end(this.stdin);
+                //proc.stdin.destroy();
+                /*
+                proc.stdin.on('end', () => {
+                    proc.stdin.destroy();
+                });
+                */
             } else {
                 eventBus.on('stdin', data => {
                     proc.stdin.write(data);
@@ -261,6 +275,7 @@ class Job {
         return {
             compile,
             run,
+            stdin: this.stdin.length,
             language: this.runtime.language,
             version: this.runtime.version.raw,
         };
